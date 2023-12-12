@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "dsp-project"
+version = "0.1.0"
+description = ""
+authors = ["Svyatoslav <pchelintsev.sv@phystech.edu>"]
+license = "Apache-2.0"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+librosa = "^0.10.1"
+scipy = "^1.11.4"
+fire = "^0.5.0"
+soundfile = "^0.12.1"
+
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^3.6.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
