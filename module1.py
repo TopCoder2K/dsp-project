@@ -70,31 +70,31 @@ def get_afc(bins_cnt: int, last_pos_freq: int) -> np.ndarray:
     return np.array(coeffs)
 
 
-def save_corrected_noize_and_gt(bins_cnt: int = 32):
+def save_corrected_noise_and_gt(bins_cnt: int = 32):
     # Получаем спектр розового шума и АЧХ колонки ноутбука. Считаем, что диапазон частот
     # свипа и шума совпадают (это выполняется для скачанных файлов).
-    pink_noize, _ = librosa.load("data/module1/pink_downsampled_to_48kHz.wav", sr=SR)
-    pink_noize_ft = fft(pink_noize, norm="ortho")
+    pink_noise, _ = librosa.load("data/module1/pink_downsampled_to_48kHz.wav", sr=SR)
+    pink_noise_ft = fft(pink_noise, norm="ortho")
     # Так как исходный сигнал действительнозначный, то берём слагаемые только
     # при неотрицательных частотах (значения при отрицательных будут симметричны)
-    if len(pink_noize) % 2 == 0:
-        last_pos_freq = len(pink_noize) // 2 - 1
+    if len(pink_noise) % 2 == 0:
+        last_pos_freq = len(pink_noise) // 2 - 1
     else:
-        last_pos_freq = (len(pink_noize) - 1) // 2
+        last_pos_freq = (len(pink_noise) - 1) // 2
     afc_coeffs = get_afc(bins_cnt, last_pos_freq)
 
-    afc_corrected_pink_noize_ft = np.zeros_like(pink_noize_ft)
+    afc_corrected_pink_noise_ft = np.zeros_like(pink_noise_ft)
     bin_size = (last_pos_freq + 1) // bins_cnt
     for i, bin_left_idx in enumerate(range(0, last_pos_freq + 1 - bin_size, bin_size)):
-        afc_corrected_pink_noize_ft[bin_left_idx : bin_left_idx + bin_size] = (
-            pink_noize_ft[bin_left_idx : bin_left_idx + bin_size] / afc_coeffs[i]
+        afc_corrected_pink_noise_ft[bin_left_idx : bin_left_idx + bin_size] = (
+            pink_noise_ft[bin_left_idx : bin_left_idx + bin_size] / afc_coeffs[i]
         )
-    afc_corrected_pink_noize_ft[last_pos_freq + 1 :] = afc_corrected_pink_noize_ft[
+    afc_corrected_pink_noise_ft[last_pos_freq + 1 :] = afc_corrected_pink_noise_ft[
         last_pos_freq:0:-1
     ]
     sf.write(
-        f"data/module1/{bins_cnt}_bins_afc_corrected_pink_noize_48kHz.wav",
-        np.abs(ifft(afc_corrected_pink_noize_ft, norm="ortho")),
+        f"data/module1/{bins_cnt}_bins_afc_corrected_pink_noise_48kHz.wav",
+        np.abs(ifft(afc_corrected_pink_noise_ft, norm="ortho")),
         SR,
         format="wav",
     )
@@ -125,17 +125,17 @@ def save_corrected_noize_and_gt(bins_cnt: int = 32):
 
 def get_impulse_responce_and_test():
     # Считаем импульсную характеристику
-    pink_noize, _ = librosa.load("data/module1/pink_downsampled_to_48kHz.wav", sr=SR)
-    recorded_pink_noize, _ = librosa.load(
-        "data/module1/recorded_corrected_pink_noize_cropped.wav", sr=SR
+    pink_noise, _ = librosa.load("data/module1/pink_downsampled_to_48kHz.wav", sr=SR)
+    recorded_pink_noise, _ = librosa.load(
+        "data/module1/recorded_corrected_pink_noise_cropped.wav", sr=SR
     )
     # Так как после обрезания получилось совсем чуть-чуть подлиннее (примерно на 5 мс),
     # то выровним длины
-    recorded_pink_noize = recorded_pink_noize[239:]
-    assert len(pink_noize) == len(
-        recorded_pink_noize
+    recorded_pink_noise = recorded_pink_noise[239:]
+    assert len(pink_noise) == len(
+        recorded_pink_noise
     ), "Длины оригинального и записанного шумов не совпадают!"
-    impulse_responce, _ = deconvolve(recorded_pink_noize, pink_noize)
+    impulse_responce, _ = deconvolve(recorded_pink_noise, pink_noise)
     with open("data/module1/impulse_responce.p", "wb") as f:
         pickle.dump(impulse_responce, f)
 
