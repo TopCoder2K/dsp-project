@@ -16,8 +16,8 @@ duration = 30  # Продолжительность свипа и шума в с
 def get_afc(bins_cnt: int, last_pos_freq: int) -> np.ndarray:
     """Считает коэффициенты искажения звука для каждого из `bins_cnt` бинов."""
 
-    sweep, _ = librosa.load("data/hdsweep_downsampled_to_48kHz.wav", sr=SR)
-    recorded_sweep, _ = librosa.load("data/sweep_from_notebook_cropped.wav", sr=SR)
+    sweep, _ = librosa.load("data/module1/hdsweep_downsampled_to_48kHz.wav", sr=SR)
+    recorded_sweep, _ = librosa.load("data/module1/recorded_sweep_cropped.wav", sr=SR)
     # Добавляем нулей в начало для выравнивания длин
     recorded_sweep = np.concatenate(
         (np.zeros(len(sweep) - len(recorded_sweep)), recorded_sweep)
@@ -48,7 +48,7 @@ def get_afc(bins_cnt: int, last_pos_freq: int) -> np.ndarray:
         freqs, np.abs(sweep_ft[: last_pos_freq + 1]), label="исходный"
     )
     ax.legend(handles=[sweep_line, recorded_sweep_line], loc="upper center")
-    fig.savefig("data/afc.png")
+    fig.savefig("data/module1/afc.png")
     # Отрисуем ещё вместе с левыми границами бинов
     ax.set_title(
         f"БПФ сигналов (красные линии - левые границы бинов, кол-во бинов - {bins_cnt})"
@@ -64,7 +64,7 @@ def get_afc(bins_cnt: int, last_pos_freq: int) -> np.ndarray:
             np.average(np.abs(recorded_sweep_ft[bin_left_idx : bin_left_idx + bin_size]))
             / np.average(np.abs(sweep_ft[bin_left_idx : bin_left_idx + bin_size]))
         )
-    fig.savefig("data/afc_with_bins.png")
+    fig.savefig(f"data/module1/{bins_cnt}_bins_afc_with_bins.png")
 
     # Возвращаем коэф-ты изменения оригинального звука колонкой ноутбука
     return np.array(coeffs)
@@ -73,7 +73,7 @@ def get_afc(bins_cnt: int, last_pos_freq: int) -> np.ndarray:
 def save_corrected_noize_and_gt(bins_cnt: int = 32):
     # Получаем спектр розового шума и АЧХ колонки ноутбука. Считаем, что диапазон частот
     # свипа и шума совпадают (это выполняется для скачанных файлов).
-    pink_noize, _ = librosa.load("data/pink_downsampled_to_48kHz.wav", sr=SR)
+    pink_noize, _ = librosa.load("data/module1/pink_downsampled_to_48kHz.wav", sr=SR)
     pink_noize_ft = fft(pink_noize, norm="ortho")
     # Так как исходный сигнал действительнозначный, то берём слагаемые только
     # при неотрицательных частотах (значения при отрицательных будут симметричны)
@@ -93,7 +93,7 @@ def save_corrected_noize_and_gt(bins_cnt: int = 32):
         last_pos_freq:0:-1
     ]
     sf.write(
-        "data/afc_corrected_pink_noize_48kHz.wav",
+        f"data/module1/{bins_cnt}_bins_afc_corrected_pink_noize_48kHz.wav",
         np.abs(ifft(afc_corrected_pink_noize_ft, norm="ortho")),
         SR,
         format="wav",
@@ -102,7 +102,7 @@ def save_corrected_noize_and_gt(bins_cnt: int = 32):
     # У меня есть гипотеза, что колонки достаточно сильно портят звук (судя по графику),
     # поэтому для чистоты эксперимента решил преобразовать и тестовый сигнал
     # (прастити за копипасту, некогда было на функции хорошо разносить)
-    test, _ = librosa.load("data/gt.wav", sr=SR)
+    test, _ = librosa.load("data/module1/gt.wav", sr=SR)
     test_ft = fft(test, norm="ortho")
     afc_corrected_test_ft = np.zeros_like(test_ft)
     if len(test) % 2 == 0:
@@ -116,7 +116,7 @@ def save_corrected_noize_and_gt(bins_cnt: int = 32):
         )
     afc_corrected_test_ft[last_pos_freq + 1 :] = afc_corrected_test_ft[last_pos_freq::-1]
     sf.write(
-        "data/afc_corrected_test_48kHz.wav",
+        f"data/module1/{bins_cnt}_bins_afc_corrected_test_48kHz.wav",
         np.abs(ifft(afc_corrected_test_ft, norm="ortho")),
         SR,
         format="wav",
@@ -125,9 +125,9 @@ def save_corrected_noize_and_gt(bins_cnt: int = 32):
 
 def get_impulse_responce_and_test():
     # Считаем импульсную характеристику
-    pink_noize, _ = librosa.load("data/pink_downsampled_to_48kHz.wav", sr=SR)
+    pink_noize, _ = librosa.load("data/module1/pink_downsampled_to_48kHz.wav", sr=SR)
     recorded_pink_noize, _ = librosa.load(
-        "data/recorded_corrected_pink_noize_cropped.wav", sr=SR
+        "data/module1/recorded_corrected_pink_noize_cropped.wav", sr=SR
     )
     # Так как после обрезания получилось совсем чуть-чуть подлиннее (примерно на 5 мс),
     # то выровним длины
@@ -136,14 +136,14 @@ def get_impulse_responce_and_test():
         recorded_pink_noize
     ), "Длины оригинального и записанного шумов не совпадают!"
     impulse_responce, _ = deconvolve(recorded_pink_noize, pink_noize)
-    with open("data/impulse_responce.p", "wb") as f:
+    with open("data/module1/impulse_responce.p", "wb") as f:
         pickle.dump(impulse_responce, f)
 
     # Сворачиваем её с тестовым сигналом (посчитаем для двух вариантов:
     # для ачх-адаптированного и для исходного)
-    test, _ = librosa.load("data/gt.wav", sr=SR)
+    test, _ = librosa.load("data/module1/gt.wav", sr=SR)
     predicted = convolve(impulse_responce, test)
-    sf.write("data/predicted_gt.wav", predicted, SR, format="wav")
+    sf.write("data/module1/predicted_gt.wav", predicted, SR, format="wav")
 
 
 if __name__ == "__main__":
