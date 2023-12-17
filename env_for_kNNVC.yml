@@ -1,0 +1,12 @@
+name: knnvc
+channels:
+  - pytorch
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - pip
+  - pip:
+      - numpy
+      - librosa
+      - torchaudio==2.0.2
