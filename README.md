@@ -123,17 +123,15 @@ poetry run python3 module1.py get_impulse_responce_and_test
 `gt.wav` из первого модуля.
 
 Подумаем, как написать mixer. На вход ему подаются сигналы
-$A_{\text{original}}, A_{\text{noise}}$ и значение $SNR^*$. На выходе должен получиться
+$A_{\text{original}}, A_{\text{noise}}$ и значение $`SNR^*`$. На выходе должен получиться
 сигнал $A_{\text{signal}} = A_{\text{original}} + kA_{\text{noise}}$, для которого верно
-$SNR^* = SNR(A_{\text{signal}}, A_{\text{noise}})$. Выведем формулу для $k$:
+$`SNR^* = SNR(A_{\text{signal}}, A_{\text{noise}})`$. Выведем формулу для $k$:
 
 $$
 SNR^* = 10\log_{10}\frac{\langle A_{\text{original}}^2\rangle}{\langle (kA_{\text{noise}})^2\rangle}
 \Longleftrightarrow \frac{\langle A_{\text{original}}^2\rangle}{k^2\langle A_{\text{noise}}^2\rangle}
 = 10^{\frac{SNR^*}{10}} \Longleftrightarrow\\
-\Longleftrightarrow k = \pm\sqrt{
-  \frac{\langle A_{\text{original}}^2\rangle}{10^{\frac{SNR^*}{10}}\langle A_{\text{noise}}^2\rangle}
-}.
+\Longleftrightarrow k = \pm\sqrt{\frac{\langle A_{\text{original}}^2\rangle}{10^{\frac{SNR^*}{10}}\langle A_{\text{noise}}^2\rangle}}.
 $$
 
 Для определённости я брал значение $k > 0$. Для получения SNR, SDR, SI-SDR, PESQ при
