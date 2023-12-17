@@ -130,7 +130,7 @@ $`SNR^* = SNR(A_{\text{signal}}, A_{\text{noise}})`$. Выведем форму�
 ```math
 SNR^* = 10\log_{10}\frac{\langle A_{\text{original}}^2\rangle}{\langle (kA_{\text{noise}})^2\rangle}
 \Longleftrightarrow \frac{\langle A_{\text{original}}^2\rangle}{k^2\langle A_{\text{noise}}^2\rangle}
-= 10^{\frac{SNR^*}{10}} \Longleftrightarrow\\
+= 10^{\frac{SNR^*}{10}}\\
 \Longleftrightarrow k = \pm\sqrt{\frac{\langle A_{\text{original}}^2\rangle}{10^{\frac{SNR^*}{10}}\langle A_{\text{noise}}^2\rangle}}.
 ```
 
