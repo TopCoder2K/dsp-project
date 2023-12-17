@@ -127,15 +127,15 @@ $A_{\text{original}}, A_{\text{noise}}$ и значение $`SNR^*`$. На вы
 сигнал $A_{\text{signal}} = A_{\text{original}} + kA_{\text{noise}}$, для которого верно
 $`SNR^* = SNR(A_{\text{signal}}, A_{\text{noise}})`$. Выведем формулу для $k$:
 
-$$
+```math
 SNR^* = 10\log_{10}\frac{\langle A_{\text{original}}^2\rangle}{\langle (kA_{\text{noise}})^2\rangle}
 \Longleftrightarrow \frac{\langle A_{\text{original}}^2\rangle}{k^2\langle A_{\text{noise}}^2\rangle}
 = 10^{\frac{SNR^*}{10}} \Longleftrightarrow\\
 \Longleftrightarrow k = \pm\sqrt{\frac{\langle A_{\text{original}}^2\rangle}{10^{\frac{SNR^*}{10}}\langle A_{\text{noise}}^2\rangle}}.
-$$
+```
 
 Для определённости я брал значение $k > 0$. Для получения SNR, SDR, SI-SDR, PESQ при
-конкретном значении $SNR^*$ достаточно запустить
+конкретном значении $`SNR^*`$ достаточно запустить
 
 ```
 poetry run python3 module2.py calc_metrics_for_given_snr --snr_db [value]
